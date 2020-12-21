@@ -1,0 +1,364 @@
+http://www.professorisidro.com.br/wp-content/uploads/Resumao_GIT.pdf
+https://www.professorisidro.com.br/web/
+
+
+https://lh3.googleusercontent.com/proxy/P6dqO1Y1nHrAEimS33KMfpg8-C9X_VYFqhy_HOH06jpM6YEwD-SAephizEiAFMgskJdNbwn9pk5smpJfNb7GNtoZb2tvYuc
+
+https://www.chartjs.org/docs/latest/general/colors.html
+
+
+REPOSITORIOS
+https://github.com/professorisidro/front-dashcard
+https://github.com/professorisidro/back-dashscard
+
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "mtb310_ag_financeiro")
+public class AgenteFinanceiro {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_agente")
+	private int id;
+	
+	@Column(name = "nome_agente", length = 100)
+	private String nome;
+	
+	@Column(name = "volume_transacional")
+	private float volume;
+
+     //gets e sets
+}
+
+
+---------------------
+
+
+
+
+-- base de testes
+http://www.professorisidro.com.br/wp-content/uploads/script-base.sql.txt
+
+
+
+:::::::::::::::::::::::::::::::::::::::::::::: Web
+== metodo do usuariodao
+public Usuario findByEmailOrRacf(String email, String racf);
+
+
+
+--- MÉTODO LOGIN COMPLETO
+@PostMapping("/login")
+	public ResponseEntity<Usuario> testandoUsuario(@RequestBody Usuario dadosLogin) {
+		/*  passo 1 - recuperar usuario por email ou racf
+		 *  passo 2 - se o usuario nao exisitir, retorno codigo 404 (Not found)
+		 *  passo 3 - se ele existir, vou conferir a senha
+		 *  passo 4 - se a senha não coincidir, retorno codigo 401 (Unauthorized)
+		 *  passo 5 - usuario existe e a senha coincide, retorno 200
+		 */
+		Usuario resultado = dao.findByEmailOrRacf(dadosLogin.getEmail(), dadosLogin.getRacf());
+		if (resultado != null) {  // usuario existe
+			// vou conferir a senha
+			if (resultado.getSenha().equals(dadosLogin.getSenha())){
+				return ResponseEntity.ok(resultado);
+			}
+			else {
+				return ResponseEntity.status(401).build();
+			}
+		}
+		else {
+			return ResponseEntity.notFound().build();
+		}
+		
+	}
+
+
+
+
+
+método do UsuarioDAO
+
+public Usuario findByEmailAndSenha(String email, String senha);
+
+
+método do UsuarioController
+
+@GetMapping("/testeuser")
+	public String testandoUsuario() {
+		Usuario u = dao.findByEmailAndSenha("isidro@isidro.com", "1234");
+		if (u != null) {
+			return "Usuario encontrado = "+u.getNome();
+		}
+		else {
+			return "falhou";
+		}
+	}
+
+
+link super hiper util para referencia
+https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods
+
+
+
+USUARIODAO
+import org.springframework.data.repository.CrudRepository;
+
+import br.com.isidrocorp.dashcard.model.Usuario;
+
+public interface UsuarioDAO extends CrudRepository<Usuario, Integer>{
+
+}
+
+
+
+USUARIOCONTROLLER
+
+import java.util.ArrayList;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import br.com.isidrocorp.dashcard.dao.UsuarioDAO;
+import br.com.isidrocorp.dashcard.model.Usuario;
+
+@RestController
+public class UsuarioController {
+
+	@Autowired
+	UsuarioDAO dao;
+	
+	@GetMapping("/todos")
+	public ArrayList<Usuario> recuperarTodos(){
+		ArrayList<Usuario> lista;
+		lista = (ArrayList<Usuario>)dao.findAll();
+		return lista;
+	}
+    
+}
+
+
+
+
+
+
+CLASSE USUARIO
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/* nesta classe, vamos criar uma estrutura "equivalente" à estrutura
+ * da tabela, porém com as nossas nomenclaturas e nosso estilo de escrita
+ * 
+ * o segredo, agora, é fazer esse "de-para" da nossa classe para a tabela
+ */
+
+@Entity // quando usamos @Entity indicamos que a classe é armazenável em BD
+@Table(name = "tbl_usuario") // a anotacao @Table permite especificar o nome da tabela
+public class Usuario {
+	@Id // indica que é chave-primaria
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_usuario")
+	private int id;
+
+	@Column(name = "nome_usuario", length = 100, nullable = false)
+	private String nome;
+
+	@Column(name = "email_usuario", length = 100, nullable = false, unique = true)
+	private String email;
+	
+	@Column(name = "racf_usuario", length = 7, nullable = false, unique = true) 
+	private String racf;
+
+    @Column(name = "senha_usuario", length = 50, nullable = false)
+	private String senha;
+
+    @Column(name = "link_foto", length = 255)
+	private String linkFoto;
+   
+ 
+// GETS E SETS
+}
+
+
+
+
+
+pra consertar o erro do POM.XML
+<version>2.3.2.RELEASE</version>
+    <relativePath/> <!-- lookup parent from repository --> 
+
+
+
+# configurar porta do Tomcat
+server.port = 8088
+
+# configurar usuario do banco
+spring.datasource.username = root
+
+# configurar senha de acesso ao banco
+spring.datasource.password = mysql
+
+# configurar URL do banco
+spring.datasource.url = jdbc:mysql://localhost:3306/dashcard?useTimezone=true&serverTimezone=UTC
+
+# configuar o dialeto "sotaque" do banco
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL8Dialect
+
+# opcional - exibir os comandos sql q serão gerados automaticamente
+spring.jpa.show_sql = true
+
+
+
+
+
+
+
+-- tabela do usuario
+
+create table tbl_usuario(
+  id_usuario    integer not null auto_increment,
+  nome_usuario  varchar(100) not null,
+  email_usuario varchar(100) not null unique,
+  racf_usuario  varchar(7) not null unique,
+  senha_usuario varchar(50) not null,
+  link_foto     varchar(255),
+  constraint pk_usuario primary key (id_usuario)
+);
+
+-- dados da tabela usuario
+insert into tbl_usuario values
+ (null, 'Professor Isidro','isidro@isidro.com',
+  'isidro', '1234', 'https://avatars2.githubusercontent.com/u/6184696?s=460&v=4');
+
+insert into tbl_usuario values
+(null, 'Capitao Caverna','capitao@caverna.com',
+'caverna','1234','https://www.blogderocha.com.br/wp-content/uploads/2018/01/capitao-caverna-blog.jpg');
+
+
+Invite do Trello
+
+https://trello.com/invite/b/AhELHVYR/877bb06d8cb2e8e784899a0aa9851759/projeto-turma-12a
+
+
+
+	@GetMapping("/produto")
+	public Produto mostrarProduto() {
+		Produto p = new Produto();
+		p.setId(1234);
+		p.setDescricao("Computador top of mind super hiper maxi mega ultra");
+		p.setPreco(2872.43);
+		return p;
+	}
+
+
+
+
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: Dev Ops ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+const { Given, When, Then, setDefaultTimeout } = require('@cucumber/cucumber');
+
+setDefaultTimeout(60 * 1000);
+
+
+
+
+	@GetMapping("/")
+	public String index() {
+		return "{\"mensagem\": \"bem vindo a minha api java\"}";
+	}
+
+
+
+
+:::: Aulas ::::
+http://www.torneseumprogramador.com.br/aula?id=kRy_VVLWtf4&aula=41&tipo=back-end&professor=Danilo
+http://www.torneseumprogramador.com.br/
+http://www.torneseumprogramador.com.br/busca?q=deploy
+http://www.torneseumprogramador.com.br/aula?id=JiyKMqVfP1M&aula=20&tipo=back-end&professor=Danilo
+http://www.torneseumprogramador.com.br/aulas/integracao-continua
+http://www.torneseumprogramador.com.br/aulas/cache
+http://www.torneseumprogramador.com.br/busca?q=bdd
+http://www.torneseumprogramador.com.br/busca?q=tdd
+http://www.torneseumprogramador.com.br/aula?id=5nkXtES7Mrg&aula=75&tipo=c-sharp&professor=Danilo
+
+
+:::: Serviços ::::
+https://www.toptal.com/developers/gitignore
+https://heroku.com/
+https://github.com/
+https://www.freemysqlhosting.net/
+https://chromedriver.chromium.org/downloads
+
+
+:::: Projetos ::::
+https://github.com/Didox/turma11a-itau
+https://github.com/Didox/kitutes-donate-treinamento-itau
+https://github.com/Didox/validar-cpf-back-spring-boot
+https://github.com/Didox/validar-cpf-front-js-vanilla
+https://github.com/torneseumprogramador/projeto-itaumon-api-itau-java-spring
+https://github.com/torneseumprogramador/itaumonfront-spring-boot
+https://github.com/Didox/turma_devops
+https://github.com/Didox/validador-itau-nodejs
+
+
+:::: ATIVIDADE ::::
+1 ) criar uma pasta em seu computador
+2 ) criar um arquivo chamado index.php dentro desta pasta, "dentro do arquivo uma frase que seja inspiradora para você"
+3 ) rodar os comandos: 
+   git init
+   git add .
+   git commit -am "mandando dado para deploy"
+   heroku create nome_da_app_de_vcs
+   git push heroku master
+
+
+:::::: Scripts :::::
+git init
+git clone URL
+cd diretorio
+code .
+heroku login -i
+heroku create java-spring-danilo
+git push heroku master
+git push heroku main
+git add .
+git commit -am "criando rota"
+git push heroku master
+npm install
+npm start
+npm run tdd
+npm run bdd
+
+cd diretorio
+mkdir pasta1
+
+build > tdd > bdd > dev > homolog, prod
+git pull --force
+npm install
+npm run tdd
+START /B npm start 2>&1
+npm run bdd
+
+heroku git:remote -a dev-validador-12a
+
+
+::::::: Downloads ::::::
+https://devcenter.heroku.com/articles/heroku-cli
+https://nodejs.org/en/download/
+https://www.jenkins.io/download/
+https://github.com/cucumber/cucumber-js/blob/master/docs/support_files/timeouts.md
+
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
